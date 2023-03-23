@@ -1,5 +1,5 @@
 repository:
-  name: github-setting-2
+  name: setting-demo
   description: This is just a demo test
   private: true
   has_issues: false

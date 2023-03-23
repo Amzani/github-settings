@@ -1,0 +1,54 @@
+name: Github settings
+on:
+  push:
+    branches:
+      - main
+jobs:
+  apply-settings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: npm install @actions/github graphql
+
+      - name: Read repository settings
+        id: yaml-data
+        uses: jbutcher5/read-yaml@main
+        with:
+          file: './.github/settings.yml'
+          key-path: '["repository"]'
+
+      - name: Display settings output
+        run: echo "${{ fromJson(steps.yaml-data.outputs.data) }}"
+
+      - name: Update Repository settings
+        uses: actions/github-script@v5
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { graphql } = require('@octokit/graphql');
+            
+            const query = `
+              mutation UpdateRepository($input: UpdateRepositoryInput!) {
+                updateRepository(input: $input) {
+                  repository {
+                    description
+                  }
+                }
+              }
+            `;
+
+            const variables = {
+              input: {
+                repositoryId: "${{ github.repository }}",
+                description: "${{ fromJson(steps.yaml-data.outputs.data) }}.description"
+              }
+            };
+
+            const token = process.env.GITHUB_TOKEN;
+            const headers = { authorization: `Bearer ${token}` };
+            const response = await graphql(query, variables, { headers });
+            
+            console.log(response);
