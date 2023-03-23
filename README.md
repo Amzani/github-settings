@@ -25,5 +25,5 @@ Check `.github/workflows/apply-settings.yml`
 
 
 ## TODO
-- [] Publish as a github workflow
-- [] Add more settings 
+- [ ] Publish as a github workflow
+- [ ] Add more settings 
